@@ -80,6 +80,27 @@ class SpotifyStats:
         
         return top_genres[:5]
 
+    def artists_recommendation(self):
+        self.top_artist()
+        artist=[]
+        for id in self.user_top_artists:
+            query = f"https://api.spotify.com/v1/artists/{id}/related-artists"
+
+            response = requests.get(query,
+                                    headers={"Content-Type": "application/json",
+                                            "Authorization": "Bearer {}".format(self.token)})
+        
+            response_json= response.json()
+            
+            for i in response_json["artists"]:
+                artist.append(i["name"])
+        
+        artist=list(set(artist))
+        return artist[:5]
+        
+
+
+
     def call_refresh(self):
         print("Refreshing token...")
 
@@ -90,8 +111,10 @@ class SpotifyStats:
 if __name__=="__main__":
     stats=SpotifyStats()
     stats.call_refresh()
+    
+
     # Adding Options
-    options = ["Top Tracks","Top Artists","Top Genres","Quit"]
+    options = ["Top Tracks","Top Artists","Top Genres","Artists Recommendation","Quit"]
 
     mainMenu = TerminalMenu(options,title="Spotify Stats")
 
@@ -120,3 +143,9 @@ if __name__=="__main__":
             print("-----------")
             for genres in stats.top_genres():
                 print(genres)
+
+        if optionsChoice == "Artists Recommendation":
+            print("Artists Recommendation")
+            print("-----------------------")
+            for artist in stats.artists_recommendation():
+                print(artist)
